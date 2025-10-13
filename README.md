@@ -34,12 +34,12 @@ spring:
             client-secret: YOUR_GITHUB_CLIENT_SECRET
             scope: read:user, user:email
 ```
-### 4. Run the Application
+### 3. Run the Application
 ```
 mvn spring-boot:run
 ```
 
-### Access the App
+### 4. Access the App
 
 Visit: http://localhost:8080
 
