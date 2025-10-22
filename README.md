@@ -26,39 +26,10 @@ It demonstrates secure OAuth2 login, automatic user registration, profile manage
 ## 🧩 Architecture Overview
 
 ### 🧭 System Flow Diagram
-flowchart TD
-    A[User Browser] -->|Login Request| B(Spring Boot Application)
-    B -->|OAuth2 Redirect| C[Google / GitHub]
-    C -->|Access Token + User Info| B
-    B -->|Save or Update User| D[(Database: H2/MySQL)]
-    B -->|Authenticated Session| A
-    A -->|Access| E[/Profile Page/]
+<img width="420" height="132" alt="image" src="https://github.com/user-attachments/assets/c253e96e-e5b6-44a5-970a-fdeb6a732af0" />
+<img width="198" height="437" alt="image" src="https://github.com/user-attachments/assets/65f1ee11-7475-4432-8197-696de328a8f6" />
 
-┌─────────────────────────────┐
-│         Frontend            │
-│  (Thymeleaf Templates)      │
-│  *React integration possible*│
-└─────────────┬───────────────┘
-              │
-┌─────────────▼───────────────┐
-│     Spring Boot Backend     │
-│  - SecurityConfig.java      │
-│  - CustomOAuth2UserService  │
-│  - ProfileController        │
-│  - AuthProviderService      │
-└─────────────┬───────────────┘
-              │
-┌─────────────▼───────────────┐
-│        JPA Layer            │
-│  - UserRepository           │
-│  - AuthProviderRepository   │
-└─────────────┬───────────────┘
-              │
-┌─────────────▼───────────────┐
-│    Database (H2/MySQL)      │
-│  Stores user & provider data│
-└─────────────────────────────┘
-##⚙️ Technologies Used
+## ⚙️ Technologies Used
 
 Spring Boot 3.5+
 
@@ -124,32 +95,7 @@ POST	/profile	Update display name and bio	Authenticated
 GET	/logout	Logout and redirect to home	Authenticated
 GET	/error	Custom error page	Public
 ## 🧰 Project Structure
-src/
- ├─ main/
- │   ├─ java/com/example/oauth2login/
- │   │   ├─ controller/
- │   │   │   ├─ HomeController.java
- │   │   │   ├─ ProfileController.java
- │   │   │   └─ ErrorController.java
- │   │   ├─ model/
- │   │   │   ├─ User.java
- │   │   │   └─ AuthProvider.java
- │   │   ├─ repository/
- │   │   │   ├─ UserRepository.java
- │   │   │   └─ AuthProviderRepository.java
- │   │   ├─ security/
- │   │   │   ├─ SecurityConfig.java
- │   │   │   └─ CustomOAuth2UserService.java
- │   │   ├─ service/
- │   │   │   └─ AuthProviderService.java
- │   │   └─ OAuth2LoginDemoApplication.java
- │   └─ resources/
- │       ├─ templates/
- │       │   ├─ home.html
- │       │   ├─ profile.html
- │       │   └─ error.html
- │       └─ application.yml
- └─ test/
+<img width="274" height="471" alt="image" src="https://github.com/user-attachments/assets/fa5f8a07-2781-49ce-9511-a110c66fd8de" />
 
 ## 🧩 Security Overview
 
@@ -178,13 +124,18 @@ This ensures the backend is React-ready with no structural changes needed.
 
 ## 🧱 Future Enhancements
 Feature	Description
-🌐 Full React Frontend	Replace Thymeleaf with a React SPA using REST APIs
-🗄️ Switch to MySQL	Persist user records across sessions
-🧠 Add /api/profile	Expand API support for external clients
-🎨 Enhanced UI	Add Bootstrap or Tailwind styling
-🧱 Role-based Auth	Introduce ADMIN / USER permissions
-👨‍💻 Author
 
+🌐 Full React Frontend	Replace Thymeleaf with a React SPA using REST APIs
+
+🗄️ Switch to MySQL	Persist user records across sessions
+
+🧠 Add /api/profile	Expand API support for external clients
+
+🎨 Enhanced UI	Add Bootstrap or Tailwind styling
+
+🧱 Role-based Auth	Introduce ADMIN / USER permissions
+
+## 👨‍💻 Author
 Shayne Angus
 Cebu City, Philippines 🇵🇭
 Built as part of a learning project integrating Spring Boot, OAuth2, and user profile management.
