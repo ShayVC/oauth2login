@@ -72,7 +72,7 @@ H2 Database (for development)
 
 Maven
 
-##🚀 Getting Started
+## 🚀 Getting Started
 1️⃣ Clone the Repository
 git clone https://github.com/YOUR_USERNAME/oauth2login-main.git
 cd oauth2login-main
@@ -116,14 +116,14 @@ Open your browser and visit:
 
 http://localhost:8080/
 
-##🔐 Endpoints Summary
+## 🔐 Endpoints Summary
 Method	Path	Description	Access
 GET	/	Home with Login buttons	Public
 GET	/profile	View profile	Authenticated
 POST	/profile	Update display name and bio	Authenticated
 GET	/logout	Logout and redirect to home	Authenticated
 GET	/error	Custom error page	Public
-##🧰 Project Structure
+## 🧰 Project Structure
 src/
  ├─ main/
  │   ├─ java/com/example/oauth2login/
@@ -151,7 +151,7 @@ src/
  │       └─ application.yml
  └─ test/
 
-##🧩 Security Overview
+## 🧩 Security Overview
 
 Session-based Authentication: Managed by Spring Security (no JWT).
 
@@ -163,7 +163,7 @@ Provider Linking: Unifies user identity across Google & GitHub.
 
 Custom Error Handling: Displays friendly UI for failed routes.
 
-##🧠 Notes on React Integration
+## 🧠 Notes on React Integration
 
 The backend already exposes REST-compatible endpoints (/profile and /api/profile).
 A React frontend can easily:
@@ -176,7 +176,7 @@ Handle login redirects through /oauth2/authorization/google or /oauth2/authoriza
 
 This ensures the backend is React-ready with no structural changes needed.
 
-##🧱 Future Enhancements
+## 🧱 Future Enhancements
 Feature	Description
 🌐 Full React Frontend	Replace Thymeleaf with a React SPA using REST APIs
 🗄️ Switch to MySQL	Persist user records across sessions
@@ -189,6 +189,6 @@ Shayne Angus
 Cebu City, Philippines 🇵🇭
 Built as part of a learning project integrating Spring Boot, OAuth2, and user profile management.
 
-##🏁 License
+## 🏁 License
 
 This project is licensed under the MIT License.
