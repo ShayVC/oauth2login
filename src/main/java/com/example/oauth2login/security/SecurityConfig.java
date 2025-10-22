@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -17,43 +18,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 🔒 Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/error", "/webjars/**",
-                                "/h2-console/**" // ✅ Allow H2 Console access
-                        ).permitAll()
+                        .requestMatchers("/", "/error", "/webjars/**", "/h2-console/**").permitAll()
                         .requestMatchers("/profile/**").authenticated()
                         .anyRequest().permitAll()
                 )
-
-                // 🔑 OAuth2 login configuration
                 .oauth2Login(oauth -> oauth
                         .loginPage("/")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .defaultSuccessUrl("/profile", true)
                 )
-
-                // 🚪 Logout configuration (GET-friendly)
                 .logout(logout -> logout
-                        .logoutUrl("/logout")              // endpoint for logout
-                        .logoutSuccessUrl("/")             // redirect home
+                        // ✅ allow GET logout links
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
-
-                // 🛡️ CSRF: disable for H2 console (and generally for dev)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, authEx) -> res.sendRedirect("/"))
+                )
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/h2-console/**")
-                        .disable() // ✅ fully disable CSRF to prevent blocking H2 console forms
                 )
-
-                // 🪟 Allow H2 console to use frames (iframe requirement)
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.disable()) // ✅ this replaces StaticHeadersWriter
-                );
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }

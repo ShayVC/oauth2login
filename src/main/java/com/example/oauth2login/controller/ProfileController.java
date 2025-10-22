@@ -3,14 +3,10 @@ package com.example.oauth2login.controller;
 import com.example.oauth2login.model.User;
 import com.example.oauth2login.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Controller
 public class ProfileController {
@@ -21,82 +17,66 @@ public class ProfileController {
         this.userRepository = userRepository;
     }
 
-    // 🟢 Show profile page after login
+    // ----- View Profile -----
     @GetMapping("/profile")
-    public String showProfile(@AuthenticationPrincipal OAuth2User oAuth2User,
-                              OAuth2AuthenticationToken authentication,
-                              Model model) {
-
-        if (oAuth2User == null) {
+    public String viewProfile(Model model, @AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            // user is not authenticated, redirect home
             return "redirect:/";
         }
 
-        Optional<User> optionalUser = findUser(authentication);
+        // Try to get email first (Google & GitHub)
+        String email = (String) principal.getAttributes().get("email");
+        // Fallback for GitHub: use login as unique id
+        String oauthId = String.valueOf(principal.getAttributes().get("sub") != null
+                ? principal.getAttributes().get("sub")
+                : principal.getAttributes().get("id"));
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            model.addAttribute("user", user);
-            // ✅ CHANGE 1: Explicitly set 'error' to null or empty string on success
-            model.addAttribute("error", null);
-        } else {
-            // User not found case
-            // ✅ CHANGE 2: Explicitly set 'user' to null on failure
-            model.addAttribute("user", null);
-            model.addAttribute("error", "User not found.");
+        User user = null;
+        if (email != null) {
+            user = userRepository.findByEmail(email).orElse(null);
+        }
+        if (user == null && oauthId != null) {
+            user = userRepository.findByOauthId(oauthId).orElse(null);
         }
 
+        if (user == null) {
+            model.addAttribute("errorMessage", "User record not found.");
+            return "error";
+        }
+
+        model.addAttribute("user", user);
         return "profile";
     }
 
-    // 🟡 Update user profile (displayName, bio)
-    // ... (This method remains unchanged, but you might want to add
-    //      model.addAttribute("error", null); for consistency if successful)
-    @PostMapping("/profile/update")
-    public String updateProfile(@AuthenticationPrincipal OAuth2User oAuth2User,
-                                OAuth2AuthenticationToken authentication,
+    // ----- Update Profile -----
+    @PostMapping("/profile")
+    public String updateProfile(@AuthenticationPrincipal OAuth2User principal,
                                 @RequestParam String displayName,
-                                @RequestParam String bio,
-                                Model model) {
-
-        if (oAuth2User == null) {
+                                @RequestParam String bio) {
+        if (principal == null) {
             return "redirect:/";
         }
 
-        Optional<User> optionalUser = findUser(authentication);
+        String email = (String) principal.getAttributes().get("email");
+        String oauthId = String.valueOf(principal.getAttributes().get("sub") != null
+                ? principal.getAttributes().get("sub")
+                : principal.getAttributes().get("id"));
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        User user = null;
+        if (email != null) {
+            user = userRepository.findByEmail(email).orElse(null);
+        }
+        if (user == null && oauthId != null) {
+            user = userRepository.findByOauthId(oauthId).orElse(null);
+        }
+
+        if (user != null) {
             user.setDisplayName(displayName);
             user.setBio(bio);
             userRepository.save(user);
-
-            model.addAttribute("user", user);
-            model.addAttribute("success", "Profile updated successfully!");
-            model.addAttribute("error", null); // Set error to null on success
-        } else {
-            model.addAttribute("user", null); // Set user to null on failure
-            model.addAttribute("error", "User not found. Could not update.");
         }
 
-        return "profile";
-    }
-
-    // 🔹 Helper method to find user by email or OAuth ID (works for both Google & GitHub)
-    private Optional<User> findUser(OAuth2AuthenticationToken authentication) {
-        Map<String, Object> attributes = authentication.getPrincipal().getAttributes();
-        String registrationId = authentication.getAuthorizedClientRegistrationId();
-
-        String email = (String) attributes.get("email");
-        String oauthId = null;
-
-        if ("github".equalsIgnoreCase(registrationId)) {
-            oauthId = String.valueOf(attributes.get("id"));
-        } else if ("google".equalsIgnoreCase(registrationId)) {
-            oauthId = (String) attributes.get("sub");
-        }
-
-        return (email != null)
-                ? userRepository.findByEmail(email)
-                : userRepository.findByOauthId(oauthId);
+        return "redirect:/profile";
     }
 }
