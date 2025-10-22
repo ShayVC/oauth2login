@@ -1,140 +1,186 @@
-# OAuth2 Login App (Google & GitHub)
+🧾 OAuth2 Login Demo (Spring Boot + Google + GitHub)
+🧠 Overview
 
-A Spring Boot web application that integrates **Google** and **GitHub** OAuth2 login.  
-Users can register or log in with either provider, and manage their personal **profile** (name, email, avatar, bio).
+This project is a Spring Boot OAuth2 Login Application that integrates authentication via Google and GitHub.
+It demonstrates secure OAuth2 login, automatic user registration, profile management, and session-based authentication using Spring Security and JPA.
 
----
+💡 Currently uses Thymeleaf for demonstration purposes; however, a React frontend can easily consume the same backend endpoints (/api/profile) for a full single-page experience.
 
-## 🚀 How to Run
+🎯 Features
+Feature	Description
+🔐 OAuth2 Login (Google & GitHub)	Login via either Google or GitHub using Spring Security.
+👤 Automatic User Registration	Creates a user record on first login.
+🔁 Unified Login	Subsequent logins map to the same user by email or OAuth ID.
+📝 Profile Management	View and update your display name and bio.
+💾 Database Integration	Uses H2 (in-memory) for development; compatible with MySQL or PostgreSQL.
+🧱 Spring Security + CSRF Protection	Provides session-based security (no JWT).
+🚪 Logout Support	Secure logout with redirect to home.
+⚠️ Custom Error Page	Friendly error message for invalid routes.
+🧩 Architecture Overview
+🧭 System Flow Diagram (Mermaid)
+flowchart TD
+    A[User Browser] -->|Login Request| B(Spring Boot Application)
+    B -->|OAuth2 Redirect| C[Google / GitHub]
+    C -->|Access Token + User Info| B
+    B -->|Save or Update User| D[(Database: H2/MySQL)]
+    B -->|Authenticated Session| A
+    A -->|Access| E[/Profile Page/]
 
-### 1. Prerequisites
-- Java 17 or later
-- Maven or Gradle
-- Google Cloud and GitHub developer credentials
-- (Optional) MySQL or PostgreSQL if not using H2
+🧱 Layer Diagram
+┌─────────────────────────────┐
+│         Frontend            │
+│  (Thymeleaf Templates)      │
+│  *React integration possible*│
+└─────────────┬───────────────┘
+              │
+┌─────────────▼───────────────┐
+│     Spring Boot Backend     │
+│  - SecurityConfig.java      │
+│  - CustomOAuth2UserService  │
+│  - ProfileController        │
+│  - AuthProviderService      │
+└─────────────┬───────────────┘
+              │
+┌─────────────▼───────────────┐
+│        JPA Layer            │
+│  - UserRepository           │
+│  - AuthProviderRepository   │
+└─────────────┬───────────────┘
+              │
+┌─────────────▼───────────────┐
+│    Database (H2/MySQL)      │
+│  Stores user & provider data│
+└─────────────────────────────┘
 
----
+⚙️ Technologies Used
 
-### 2. Set Up OAuth Credentials
+Spring Boot 3.5+
 
-Create credentials for each provider and add them to your `application.yml`:
+Spring Security (OAuth2 Client)
 
-```
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: YOUR_GOOGLE_CLIENT_ID
-            client-secret: YOUR_GOOGLE_CLIENT_SECRET
-            scope: openid, email, profile
-          github:
-            client-id: YOUR_GITHUB_CLIENT_ID
-            client-secret: YOUR_GITHUB_CLIENT_SECRET
-            scope: read:user, user:email
-```
-### 3. Run the Application
-```
-mvn spring-boot:run
-```
+Spring Data JPA
 
-### 4. Access the App
+Thymeleaf (React-ready backend)
 
-Visit: http://localhost:8080
+H2 Database (for dev)
 
-Click “Login with Google” or “Login with GitHub”
+Maven
 
-### 🧠 Features
-🔐 OAuth2 Login with Google & GitHub
+🚀 Getting Started
+1️⃣ Clone the Repository
+git clone https://github.com/YOUR_USERNAME/oauth2login-main.git
+cd oauth2login-main
 
-🧾 Automatic user registration on first login
+2️⃣ Create OAuth Credentials
+Google
 
-💾 User persistence using JPA (H2 dev DB)
+Go to Google Cloud Console
 
-🧍‍♂️ Profile page: shows avatar, name, email, bio
+Create OAuth Client (Web Application)
 
-✏️ Profile editing (display name + bio)
+Add Authorized redirect URI:
 
-🧱 Session-based security (no JWT)
+http://localhost:8080/login/oauth2/code/google
 
-🛡️ CSRF protection for form submissions
+GitHub
 
-🚫 Custom error pages (no Whitelabel errors)
+Go to GitHub Developer Settings → OAuth Apps
 
-### 📁 Project Structure
-| File / Package                          | Description                           |
-| --------------------------------------- | ------------------------------------- |
-| `model/User.java`                       | User entity model                     |
-| `repository/UserRepository.java`        | JPA interface for database access     |
-| `security/CustomOAuth2UserService.java` | Handles login, user provisioning      |
-| `controller/ProfileController.java`     | Displays and updates profile          |
-| `security/SecurityConfig.java`          | Configures OAuth2 login, CSRF, logout |
-| `templates/profile.html`                | Profile page template                 |
-| `templates/error.html`                  | Custom error page                     |
+Register a new application
 
-### 🧱 Database
-Default: H2 (in-memory)
-Access console at: http://localhost:8080/h2-console
+Add Authorization callback URL:
 
-For production, switch to MySQL or PostgreSQL by editing application.yml.
+http://localhost:8080/login/oauth2/code/github
 
-Example H2 settings:
-```
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-```
-### 🧩 Endpoints
-Method   | Endpoint          | Description
---------- | ----------------- | --------------------------------------------
-GET       | /                 | Home page (login options)
-GET       | /profile          | View profile (authenticated)
-POST      | /profile/update   | Update display name and bio
-GET       | /logout           | Logout and redirect to home
-GET       | /error            | Custom error page
-### 📅 Milestones & Deliverables
-Milestone | Description                                       | Status
----------- | ------------------------------------------------ | -------
-1          | OAuth2 login with one provider                   | ✅
-2          | Both providers integrated & user persisted       | ✅
-3          | Profile page with protection and logout          | ✅
-4 (Final)  | Profile editing, CSRF protection, error handling | ✅
-### 🧾 Rubric Alignment (100 pts)
-Criteria                                  | Points | Status | Notes
------------------------------------------- | ------- | ------- | ---------------------------------------------
-Integration Correctness (Google & GitHub)  | 35      | ✅      | Both providers fully functional
-User Provisioning & Persistence            | 20      | ✅      | Users saved via JPA
-Security & Access Control                  | 15      | ✅      | Session-based + CSRF protection
-Profile Module                             | 15      | ✅      | View and edit implemented
-Architecture Docs & Code Quality           | 15      | ✅      | Clean code + updated README documentation
-### 🧭 Architecture Overview
-![img.png](img.png)
-### 🧾 How to Logout
-
-Click Logout at the top-right of the profile page → session invalidated → redirected to Home.
-### 🧠 Future Improvements
-
-Add timestamp fields (createdAt, updatedAt)
-
-Add a standalone AuthProvider table (optional per rubric)
-
-Support multiple linked providers per user
-
-Improve UI with Bootstrap or TailwindCSS
-
-### Author: Shayne Angus
-### Course / Instructor: IT342 / Mr. Frederick Revilleza
-### Date: October 13, 2025
+3️⃣ Configure Environment Variables
+Windows (PowerShell)
+setx GOOGLE_CLIENT_ID "your-google-client-id"
+setx GOOGLE_CLIENT_SECRET "your-google-client-secret"
+setx GITHUB_CLIENT_ID "your-github-client-id"
+setx GITHUB_CLIENT_SECRET "your-github-client-secret"
 
 
+Then restart IntelliJ or your terminal.
+
+4️⃣ Run the Application
+./mvnw spring-boot:run
 
 
+Visit:
 
+http://localhost:8080/
 
+🔐 Endpoints Summary
+Method	Path	Description	Access
+GET	/	Home page with login buttons	Public
+GET	/profile	View own profile	Authenticated
+POST	/profile	Update display name and bio	Authenticated
+GET	/logout	Logout and redirect to home	Authenticated
+GET	/error	Friendly error page	Public
+🧰 Project Structure
+src/
+ ├─ main/
+ │   ├─ java/com/example/oauth2login/
+ │   │   ├─ controller/
+ │   │   │   ├─ HomeController.java
+ │   │   │   ├─ ProfileController.java
+ │   │   │   └─ ErrorController.java
+ │   │   ├─ model/
+ │   │   │   ├─ User.java
+ │   │   │   └─ AuthProvider.java
+ │   │   ├─ repository/
+ │   │   │   ├─ UserRepository.java
+ │   │   │   └─ AuthProviderRepository.java
+ │   │   ├─ security/
+ │   │   │   ├─ SecurityConfig.java
+ │   │   │   └─ CustomOAuth2UserService.java
+ │   │   ├─ service/
+ │   │   │   └─ AuthProviderService.java
+ │   │   └─ OAuth2LoginDemoApplication.java
+ │   └─ resources/
+ │       ├─ templates/
+ │       │   ├─ home.html
+ │       │   ├─ profile.html
+ │       │   └─ error.html
+ │       └─ application.yml
+ └─ test/
+
+🧩 Security Overview
+
+Session-based Security: No JWTs; session cookies managed by Spring.
+
+CSRF Protection: Enabled (disabled only for H2 Console).
+
+OAuth2 Client Integration: via spring-boot-starter-oauth2-client.
+
+Provider Linking: Unified user across Google/GitHub using email or OAuth ID.
+
+🧠 Notes on React Integration
+
+💡 The backend already exposes endpoints that can easily be consumed by a React frontend (for example, /profile or /api/profile).
+A simple React app could:
+
+Fetch GET /api/profile for user info
+
+Send updates via POST /api/profile
+
+Handle login redirection to /oauth2/authorization/google or /oauth2/authorization/github
+
+This design ensures that React or Thymeleaf can be swapped without backend changes.
+
+🧱 Future Enhancements
+Feature	Description
+🌐 Full React Frontend	Replace Thymeleaf with a React SPA consuming REST endpoints
+🗄️ Switch to MySQL	Persist data beyond dev sessions
+🧠 Add REST /api/profile routes	Already compatible with your domain model
+🎨 Enhanced UI	Use Tailwind or Bootstrap
+🧱 Role-based Access	Add ADMIN / USER privileges
+👨‍💻 Author
+
+Shayne Angus
+Cebu City, Philippines 🇵🇭
+Built as part of a learning project integrating Spring Boot, OAuth2, and secure profile management.
+
+🏁 License
+
+This project is licensed under the MIT License.
